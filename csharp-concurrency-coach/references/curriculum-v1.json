@@ -1,0 +1,192 @@
+{
+  "version": 1,
+  "title": "C# 并发与多线程专家路线",
+  "default_target_framework": "net10.0",
+  "mastery_scale": {
+    "0": "unobserved",
+    "1": "recognize",
+    "2": "explain",
+    "3": "apply",
+    "4": "diagnose"
+  },
+  "evidence_kinds": ["recognize", "concept", "prediction", "code", "lab", "diagnosis", "tradeoff", "review"],
+  "review_intervals_days": [1, 3, 7, 14, 30],
+  "stages": [
+    {
+      "id": "s0",
+      "order": 0,
+      "title": "C# 前置桥接",
+      "gate": {"lab_id": "gate-s0-prerequisites", "required_evidence": ["code", "diagnosis", "review"]},
+      "objectives": [
+        {"id": "s0.delegates-closures", "title": "委托、lambda 与闭包捕获", "core": true, "prerequisites": [], "evidence": ["prediction", "code"], "lab_id": "lab-closure-capture", "tags": ["delegate", "lambda", "closure", "委托", "闭包"]},
+        {"id": "s0.generics-shared-state", "title": "泛型代码与共享可变状态", "core": true, "prerequisites": ["s0.delegates-closures"], "evidence": ["concept", "code"], "lab_id": "lab-generic-shared-state", "tags": ["generic", "shared state", "泛型", "共享状态"]},
+        {"id": "s0.exceptions-lifetime", "title": "异常传播、IDisposable 与资源生命周期", "core": true, "prerequisites": ["s0.delegates-closures"], "evidence": ["prediction", "code"], "lab_id": "lab-exception-lifetime", "tags": ["exception", "IDisposable", "lifetime", "异常", "资源释放"]},
+        {"id": "s0.iterators-state-machines", "title": "迭代器、状态机与异步语法前置", "core": true, "prerequisites": ["s0.generics-shared-state", "s0.exceptions-lifetime"], "evidence": ["concept", "prediction"], "lab_id": "lab-iterator-state", "tags": ["iterator", "state machine", "yield", "迭代器", "状态机"]},
+        {"id": "s0.prerequisites-integration", "title": "前置知识综合代码阅读与修复", "core": true, "prerequisites": ["s0.iterators-state-machines"], "evidence": ["code", "diagnosis"], "lab_id": "gate-s0-prerequisites", "tags": ["prerequisite", "integration", "前置", "综合"]}
+      ]
+    },
+    {
+      "id": "s1",
+      "order": 1,
+      "title": "并发心智模型",
+      "gate": {"lab_id": "gate-s1-interleaving", "required_evidence": ["prediction", "diagnosis", "review"]},
+      "objectives": [
+        {"id": "s1.concurrency-parallel-async", "title": "并发、并行与异步的边界", "core": true, "prerequisites": ["s0.prerequisites-integration"], "evidence": ["concept", "prediction"], "lab_id": "lab-three-models", "tags": ["concurrency", "parallelism", "asynchrony", "并发", "并行", "异步"]},
+        {"id": "s1.cpu-io-workloads", "title": "CPU-bound、I/O-bound 与吞吐/延迟", "core": true, "prerequisites": ["s1.concurrency-parallel-async"], "evidence": ["concept", "tradeoff"], "lab_id": "lab-cpu-io", "tags": ["CPU-bound", "I/O-bound", "throughput", "latency", "吞吐", "延迟"]},
+        {"id": "s1.os-scheduling", "title": "线程、时间片、上下文切换与调度不确定性", "core": true, "prerequisites": ["s1.concurrency-parallel-async"], "evidence": ["concept", "prediction"], "lab_id": "lab-scheduling", "tags": ["thread", "scheduler", "context switch", "线程", "调度", "上下文切换"]},
+        {"id": "s1.shared-state", "title": "共享状态、竞态窗口与交错执行", "core": true, "prerequisites": ["s1.os-scheduling", "s0.generics-shared-state"], "evidence": ["prediction", "lab"], "lab_id": "lab-shared-counter", "tags": ["shared state", "interleaving", "race", "共享状态", "交错", "竞态"]},
+        {"id": "s1.invariants", "title": "用不变量定义并发正确性", "core": true, "prerequisites": ["s1.shared-state"], "evidence": ["concept", "code", "diagnosis"], "lab_id": "gate-s1-interleaving", "tags": ["invariant", "linearizability", "correctness", "不变量", "正确性"]}
+      ]
+    },
+    {
+      "id": "s2",
+      "order": 2,
+      "title": "Thread 与 ThreadPool",
+      "gate": {"lab_id": "gate-s2-starvation", "required_evidence": ["code", "diagnosis", "review"]},
+      "objectives": [
+        {"id": "s2.thread-lifecycle", "title": "Thread 创建、启动、Join 与异常边界", "core": true, "prerequisites": ["s1.invariants"], "evidence": ["prediction", "code"], "lab_id": "lab-thread-lifecycle", "tags": ["Thread", "Join", "lifecycle", "线程生命周期"]},
+        {"id": "s2.foreground-background", "title": "前台/后台线程与进程终止", "core": true, "prerequisites": ["s2.thread-lifecycle"], "evidence": ["prediction", "lab"], "lab_id": "lab-background-thread", "tags": ["foreground", "background", "前台线程", "后台线程"]},
+        {"id": "s2.thread-local-context", "title": "ThreadLocal、线程静态状态与 ExecutionContext 初识", "core": true, "prerequisites": ["s2.thread-lifecycle"], "evidence": ["concept", "code"], "lab_id": "lab-thread-local", "tags": ["ThreadLocal", "ThreadStatic", "ExecutionContext", "线程本地"]},
+        {"id": "s2.pool-queues", "title": "ThreadPool 复用、队列与适用边界", "core": true, "prerequisites": ["s2.foreground-background", "s1.cpu-io-workloads"], "evidence": ["concept", "tradeoff", "lab"], "lab_id": "lab-threadpool-queues", "tags": ["ThreadPool", "queue", "worker", "线程池", "队列"]},
+        {"id": "s2.blocking-starvation", "title": "阻塞、线程池饥饿与专用线程选择", "core": true, "prerequisites": ["s2.pool-queues"], "evidence": ["prediction", "diagnosis", "tradeoff"], "lab_id": "gate-s2-starvation", "tags": ["blocking", "starvation", "dedicated thread", "阻塞", "饥饿"]}
+      ]
+    },
+    {
+      "id": "s3",
+      "order": 3,
+      "title": "内存模型与同步",
+      "gate": {"lab_id": "gate-s3-safe-publication", "required_evidence": ["code", "diagnosis", "review"]},
+      "objectives": [
+        {"id": "s3.atomicity-race", "title": "原子性、读改写与数据竞态", "core": true, "prerequisites": ["s1.shared-state"], "evidence": ["prediction", "lab"], "lab_id": "lab-lost-update", "tags": ["atomicity", "race condition", "read-modify-write", "原子性", "竞态"]},
+        {"id": "s3.visibility-ordering", "title": "可见性、重排序与 happens-before", "core": true, "prerequisites": ["s3.atomicity-race"], "evidence": ["concept", "prediction"], "lab_id": "lab-message-passing", "tags": ["visibility", "ordering", "happens-before", "可见性", "重排序"]},
+        {"id": "s3.lock-monitor", "title": "lock、System.Threading.Lock 与 Monitor", "core": true, "prerequisites": ["s3.atomicity-race"], "evidence": ["code", "tradeoff"], "lab_id": "lab-lock-monitor", "tags": ["lock", "Monitor", "System.Threading.Lock", "互斥"]},
+        {"id": "s3.interlocked-volatile", "title": "Interlocked、Volatile 与复合操作边界", "core": true, "prerequisites": ["s3.visibility-ordering"], "evidence": ["prediction", "code", "tradeoff"], "lab_id": "lab-interlocked-volatile", "tags": ["Interlocked", "Volatile", "memory barrier", "内存屏障"]},
+        {"id": "s3.safe-publication", "title": "安全发布、初始化与同步关系", "core": true, "prerequisites": ["s3.lock-monitor", "s3.interlocked-volatile"], "evidence": ["code", "diagnosis"], "lab_id": "gate-s3-safe-publication", "tags": ["safe publication", "initialization", "double checked locking", "安全发布", "初始化"]}
+      ]
+    },
+    {
+      "id": "s4",
+      "order": 4,
+      "title": "同步原语与并发病理",
+      "gate": {"lab_id": "gate-s4-pathologies", "required_evidence": ["code", "diagnosis", "review"]},
+      "objectives": [
+        {"id": "s4.semaphore-mutex", "title": "SemaphoreSlim、Semaphore 与 Mutex", "core": true, "prerequisites": ["s3.lock-monitor"], "evidence": ["code", "tradeoff"], "lab_id": "lab-semaphore-mutex", "tags": ["SemaphoreSlim", "Semaphore", "Mutex", "信号量", "互斥量"]},
+        {"id": "s4.events-barriers", "title": "事件、CountdownEvent 与 Barrier 协调", "core": true, "prerequisites": ["s3.lock-monitor"], "evidence": ["code", "prediction"], "lab_id": "lab-events-barrier", "tags": ["AutoResetEvent", "ManualResetEventSlim", "CountdownEvent", "Barrier", "事件", "屏障"]},
+        {"id": "s4.readerwriter-spinning", "title": "ReaderWriterLockSlim、SpinWait 与竞争成本", "core": true, "prerequisites": ["s3.lock-monitor"], "evidence": ["tradeoff", "lab"], "lab_id": "lab-rwlock-spin", "tags": ["ReaderWriterLockSlim", "SpinWait", "SpinLock", "读写锁", "自旋"]},
+        {"id": "s4.deadlock", "title": "死锁条件、锁顺序与超时恢复", "core": true, "prerequisites": ["s4.semaphore-mutex", "s4.events-barriers"], "evidence": ["prediction", "code", "diagnosis"], "lab_id": "lab-deadlock", "tags": ["deadlock", "lock ordering", "死锁", "锁顺序"]},
+        {"id": "s4.livelock-starvation-priority", "title": "活锁、饥饿、公平性与优先级反转", "core": true, "prerequisites": ["s4.deadlock", "s4.readerwriter-spinning"], "evidence": ["concept", "diagnosis", "tradeoff"], "lab_id": "gate-s4-pathologies", "tags": ["livelock", "starvation", "fairness", "priority inversion", "活锁", "饥饿", "优先级反转"]}
+      ]
+    },
+    {
+      "id": "s5",
+      "order": 5,
+      "title": "Task 与 async/await",
+      "gate": {"lab_id": "gate-s5-async-library", "required_evidence": ["code", "diagnosis", "review"]},
+      "objectives": [
+        {"id": "s5.task-semantics", "title": "Task 状态、结果与线程关系", "core": true, "prerequisites": ["s2.pool-queues", "s0.iterators-state-machines"], "evidence": ["concept", "prediction"], "lab_id": "lab-task-semantics", "tags": ["Task", "task state", "任务"]},
+        {"id": "s5.continuations-scheduler", "title": "continuation 与 TaskScheduler", "core": true, "prerequisites": ["s5.task-semantics"], "evidence": ["prediction", "code"], "lab_id": "lab-continuation-scheduler", "tags": ["continuation", "TaskScheduler", "延续", "调度器"]},
+        {"id": "s5.async-state-machine", "title": "async/await 状态机与异步 I/O", "core": true, "prerequisites": ["s5.task-semantics", "s0.iterators-state-machines"], "evidence": ["concept", "code"], "lab_id": "lab-async-state-machine", "tags": ["async", "await", "state machine", "异步状态机"]},
+        {"id": "s5.cancellation", "title": "CancellationToken 与结构化取消", "core": true, "prerequisites": ["s5.async-state-machine"], "evidence": ["code", "tradeoff"], "lab_id": "lab-cancellation", "tags": ["CancellationToken", "cancellation", "取消"]},
+        {"id": "s5.async-exceptions", "title": "异步异常、聚合与 unobserved 边界", "core": true, "prerequisites": ["s5.async-state-machine", "s0.exceptions-lifetime"], "evidence": ["prediction", "code", "diagnosis"], "lab_id": "lab-async-exceptions", "tags": ["AggregateException", "async exception", "异步异常"]},
+        {"id": "s5.valuetask-tcs", "title": "ValueTask 与 TaskCompletionSource 正确用法", "core": true, "prerequisites": ["s5.continuations-scheduler", "s5.async-exceptions"], "evidence": ["code", "tradeoff", "diagnosis"], "lab_id": "lab-valuetask-tcs", "tags": ["ValueTask", "TaskCompletionSource", "RunContinuationsAsynchronously"]},
+        {"id": "s5.context-flow", "title": "SynchronizationContext、ConfigureAwait、ExecutionContext 与 AsyncLocal", "core": true, "prerequisites": ["s5.continuations-scheduler", "s2.thread-local-context"], "evidence": ["prediction", "code", "diagnosis"], "lab_id": "gate-s5-async-library", "tags": ["SynchronizationContext", "ConfigureAwait", "ExecutionContext", "AsyncLocal", "上下文"]}
+      ]
+    },
+    {
+      "id": "s6",
+      "order": 6,
+      "title": "数据并行与并发协调",
+      "gate": {"lab_id": "gate-s6-bounded-pipeline", "required_evidence": ["code", "tradeoff", "review"]},
+      "objectives": [
+        {"id": "s6.parallel-loops", "title": "Parallel 循环、并行度与停止语义", "core": true, "prerequisites": ["s5.task-semantics", "s1.cpu-io-workloads"], "evidence": ["code", "tradeoff"], "lab_id": "lab-parallel-loops", "tags": ["Parallel.For", "Parallel.ForEachAsync", "MaxDegreeOfParallelism", "并行循环"]},
+        {"id": "s6.plinq-partitioning", "title": "PLINQ、分区、顺序与合并成本", "core": true, "prerequisites": ["s6.parallel-loops"], "evidence": ["prediction", "lab", "tradeoff"], "lab_id": "lab-plinq-partition", "tags": ["PLINQ", "Partitioner", "ordering", "分区"]},
+        {"id": "s6.concurrent-collections", "title": "并发集合、原子操作与复合语义", "core": true, "prerequisites": ["s3.interlocked-volatile"], "evidence": ["code", "diagnosis"], "lab_id": "lab-concurrent-collections", "tags": ["ConcurrentDictionary", "ConcurrentQueue", "ConcurrentBag", "并发集合"]},
+        {"id": "s6.blocking-collection", "title": "BlockingCollection 与有界阻塞队列", "core": true, "prerequisites": ["s4.semaphore-mutex", "s6.concurrent-collections"], "evidence": ["code", "tradeoff"], "lab_id": "lab-blocking-collection", "tags": ["BlockingCollection", "bounded", "阻塞集合", "有界队列"]},
+        {"id": "s6.channels", "title": "Channel<T> 与异步生产者消费者", "core": true, "prerequisites": ["s5.cancellation", "s6.concurrent-collections"], "evidence": ["code", "diagnosis"], "lab_id": "lab-channels", "tags": ["Channel", "producer consumer", "生产者消费者", "通道"]},
+        {"id": "s6.async-streams-backpressure", "title": "异步流、背压、批处理与限流", "core": true, "prerequisites": ["s6.channels", "s5.context-flow"], "evidence": ["code", "tradeoff", "diagnosis"], "lab_id": "gate-s6-bounded-pipeline", "tags": ["IAsyncEnumerable", "backpressure", "batching", "rate limiting", "异步流", "背压", "限流"]}
+      ]
+    },
+    {
+      "id": "s7",
+      "order": 7,
+      "title": "CLR 运行时内部",
+      "gate": {"lab_id": "gate-s7-runtime-evidence", "required_evidence": ["diagnosis", "tradeoff", "review"]},
+      "objectives": [
+        {"id": "s7.pool-architecture", "title": "CoreCLR ThreadPool 架构与工作项", "core": true, "prerequisites": ["s2.blocking-starvation", "s5.task-semantics"], "evidence": ["concept", "diagnosis"], "lab_id": "lab-pool-architecture", "tags": ["CoreCLR", "ThreadPool", "work item", "线程池架构"]},
+        {"id": "s7.hill-climbing", "title": "线程注入、hill-climbing 与阻塞补偿", "core": true, "prerequisites": ["s7.pool-architecture"], "evidence": ["concept", "lab", "diagnosis"], "lab_id": "lab-hill-climbing", "tags": ["hill climbing", "thread injection", "blocking compensation", "线程注入", "阻塞补偿"]},
+        {"id": "s7.work-stealing", "title": "局部/全局队列与 work stealing", "core": true, "prerequisites": ["s7.pool-architecture"], "evidence": ["concept", "prediction", "tradeoff"], "lab_id": "lab-work-stealing", "tags": ["work stealing", "local queue", "global queue", "工作窃取"]},
+        {"id": "s7.io-completion", "title": "异步 I/O 完成路径与线程占用", "core": true, "prerequisites": ["s5.async-state-machine", "s7.pool-architecture"], "evidence": ["concept", "diagnosis"], "lab_id": "lab-io-completion", "tags": ["I/O completion", "IOCP", "async I/O", "异步 I/O"]},
+        {"id": "s7.timers-continuations", "title": "计时器队列与 continuation 调度", "core": true, "prerequisites": ["s5.continuations-scheduler", "s7.pool-architecture"], "evidence": ["prediction", "diagnosis"], "lab_id": "lab-timer-continuation", "tags": ["Timer", "PeriodicTimer", "continuation", "计时器"]},
+        {"id": "s7.coreclr-source", "title": "按版本验证 CoreCLR 源码与测试", "core": true, "prerequisites": ["s7.hill-climbing", "s7.work-stealing", "s7.io-completion"], "evidence": ["diagnosis", "tradeoff"], "lab_id": "gate-s7-runtime-evidence", "tags": ["dotnet/runtime", "source code", "CoreCLR source", "源码阅读"]}
+      ]
+    },
+    {
+      "id": "s8",
+      "order": 8,
+      "title": "无锁算法与硬件效应",
+      "gate": {"lab_id": "gate-s8-lockfree-review", "required_evidence": ["code", "diagnosis", "tradeoff", "review"]},
+      "objectives": [
+        {"id": "s8.cas-linearization", "title": "CAS 循环与线性化点", "core": true, "prerequisites": ["s3.interlocked-volatile", "s1.invariants"], "evidence": ["code", "diagnosis"], "lab_id": "lab-cas-loop", "tags": ["CAS", "CompareExchange", "linearization", "线性化点"]},
+        {"id": "s8.aba-reclamation", "title": "ABA、对象生命周期与回收假设", "core": true, "prerequisites": ["s8.cas-linearization"], "evidence": ["concept", "diagnosis"], "lab_id": "lab-aba", "tags": ["ABA", "reclamation", "lifetime", "对象回收"]},
+        {"id": "s8.progress-guarantees", "title": "obstruction-free、lock-free 与 wait-free", "core": true, "prerequisites": ["s8.cas-linearization"], "evidence": ["concept", "tradeoff"], "lab_id": "lab-progress-guarantees", "tags": ["lock-free", "wait-free", "obstruction-free", "进展保证"]},
+        {"id": "s8.fences-coherence", "title": "内存栅栏、缓存一致性与语言保证", "core": true, "prerequisites": ["s3.visibility-ordering"], "evidence": ["concept", "prediction"], "lab_id": "lab-fences", "tags": ["memory fence", "cache coherence", "内存栅栏", "缓存一致性"]},
+        {"id": "s8.false-sharing", "title": "缓存行、伪共享与测量", "core": true, "prerequisites": ["s8.fences-coherence", "s6.parallel-loops"], "evidence": ["lab", "diagnosis", "tradeoff"], "lab_id": "lab-false-sharing", "tags": ["cache line", "false sharing", "缓存行", "伪共享"]},
+        {"id": "s8.lockfree-proof", "title": "自定义无锁结构的证明与评审边界", "core": true, "prerequisites": ["s8.aba-reclamation", "s8.progress-guarantees", "s8.false-sharing"], "evidence": ["code", "diagnosis", "tradeoff"], "lab_id": "gate-s8-lockfree-review", "tags": ["lock-free design", "proof", "无锁设计", "正确性证明"]}
+      ]
+    },
+    {
+      "id": "s9",
+      "order": 9,
+      "title": "Windows 并发与诊断",
+      "gate": {"lab_id": "gate-s9-windows-hang", "required_evidence": ["diagnosis", "tradeoff", "review"]},
+      "objectives": [
+        {"id": "s9.ui-dispatch", "title": "WinForms/WPF UI 线程、Dispatcher 与重入", "core": true, "prerequisites": ["s5.context-flow", "s4.deadlock"], "evidence": ["code", "diagnosis"], "lab_id": "lab-ui-dispatch", "tags": ["WPF", "WinForms", "Dispatcher", "UI thread", "UI 线程", "重入"]},
+        {"id": "s9.com-apartments", "title": "COM STA/MTA、消息泵与托管线程", "core": true, "prerequisites": ["s9.ui-dispatch", "s2.thread-lifecycle"], "evidence": ["concept", "diagnosis"], "lab_id": "lab-com-apartment", "tags": ["COM", "STA", "MTA", "message pump", "消息泵"]},
+        {"id": "s9.eventpipe", "title": "EventPipe 与运行时事件采集", "core": true, "prerequisites": ["s7.pool-architecture"], "evidence": ["lab", "diagnosis"], "lab_id": "lab-eventpipe", "tags": ["EventPipe", "dotnet-trace", "runtime events", "运行时事件"]},
+        {"id": "s9.etw-perfview", "title": "ETW、PerfView 与线程时间分析", "core": true, "prerequisites": ["s9.eventpipe"], "evidence": ["diagnosis", "tradeoff"], "lab_id": "lab-etw-perfview", "tags": ["ETW", "PerfView", "thread time", "线程时间"]},
+        {"id": "s9.vs-parallel-tools", "title": "Visual Studio Parallel Stacks/Tasks 与 Concurrency Visualizer", "core": true, "prerequisites": ["s9.eventpipe"], "evidence": ["diagnosis", "tradeoff"], "lab_id": "lab-vs-parallel", "tags": ["Parallel Stacks", "Parallel Tasks", "Concurrency Visualizer", "并行堆栈"]},
+        {"id": "s9.dumps-waits", "title": "dump、线程栈、锁与等待链分析", "core": true, "prerequisites": ["s9.etw-perfview", "s4.livelock-starvation-priority"], "evidence": ["diagnosis", "tradeoff"], "lab_id": "gate-s9-windows-hang", "tags": ["dump", "thread stack", "wait chain", "转储", "等待链"]}
+      ]
+    },
+    {
+      "id": "s10",
+      "order": 10,
+      "title": "生产级并发设计",
+      "gate": {"lab_id": "gate-s10-resilient-service", "required_evidence": ["code", "diagnosis", "tradeoff", "review"]},
+      "objectives": [
+        {"id": "s10.aspnet-concurrency", "title": "ASP.NET Core 请求并发与 sync-over-async 风险", "core": true, "prerequisites": ["s5.context-flow", "s7.hill-climbing"], "evidence": ["diagnosis", "tradeoff"], "lab_id": "lab-aspnet-starvation", "tags": ["ASP.NET Core", "sync-over-async", "request concurrency", "请求并发"]},
+        {"id": "s10.hosted-services", "title": "BackgroundService 生命周期与可靠停止", "core": true, "prerequisites": ["s5.cancellation", "s6.channels"], "evidence": ["code", "diagnosis"], "lab_id": "lab-background-service", "tags": ["BackgroundService", "IHostedService", "graceful shutdown", "后台服务", "优雅停止"]},
+        {"id": "s10.cache-batching", "title": "并发缓存、去重、批处理与 stampede 控制", "core": true, "prerequisites": ["s6.concurrent-collections", "s6.async-streams-backpressure"], "evidence": ["code", "tradeoff", "diagnosis"], "lab_id": "lab-cache-batching", "tags": ["cache", "batching", "stampede", "缓存", "批处理", "缓存击穿"]},
+        {"id": "s10.timeouts-cancellation", "title": "超时预算、取消传播与资源所有权", "core": true, "prerequisites": ["s5.cancellation", "s0.exceptions-lifetime"], "evidence": ["code", "tradeoff"], "lab_id": "lab-timeout-budget", "tags": ["timeout", "cancellation propagation", "ownership", "超时预算", "取消传播"]},
+        {"id": "s10.overload-control", "title": "有界并发、背压、限流与过载保护", "core": true, "prerequisites": ["s6.async-streams-backpressure", "s10.timeouts-cancellation"], "evidence": ["code", "diagnosis", "tradeoff"], "lab_id": "lab-overload-control", "tags": ["bounded concurrency", "backpressure", "rate limiter", "overload", "有界并发", "过载保护"]},
+        {"id": "s10.observability-recovery", "title": "并发可观测性、故障隔离与恢复", "core": true, "prerequisites": ["s10.hosted-services", "s10.overload-control", "s9.eventpipe"], "evidence": ["code", "diagnosis", "tradeoff"], "lab_id": "gate-s10-resilient-service", "tags": ["observability", "recovery", "fault isolation", "可观测性", "故障恢复"]}
+      ]
+    },
+    {
+      "id": "s11",
+      "order": 11,
+      "title": "性能与诊断",
+      "gate": {"lab_id": "gate-s11-performance-case", "required_evidence": ["lab", "diagnosis", "tradeoff", "review"]},
+      "objectives": [
+        {"id": "s11.benchmark-method", "title": "预热、分布、对照与可靠微基准", "core": true, "prerequisites": ["s8.false-sharing", "s1.cpu-io-workloads"], "evidence": ["lab", "diagnosis"], "lab_id": "lab-benchmark-method", "tags": ["benchmark", "warmup", "distribution", "BenchmarkDotNet", "基准测试", "预热"]},
+        {"id": "s11.runtime-counters", "title": "运行时计数器与诊断假设选择", "core": true, "prerequisites": ["s7.hill-climbing", "s9.eventpipe"], "evidence": ["lab", "diagnosis"], "lab_id": "lab-runtime-counters", "tags": ["dotnet-counters", "metrics", "runtime counters", "运行时计数器"]},
+        {"id": "s11.eventpipe-traces", "title": "短时 EventPipe trace 采集与时间线关联", "core": true, "prerequisites": ["s11.runtime-counters", "s9.eventpipe"], "evidence": ["lab", "diagnosis"], "lab_id": "lab-eventpipe-trace", "tags": ["dotnet-trace", "EventPipe", "timeline", "跟踪", "时间线"]},
+        {"id": "s11.pool-starvation", "title": "线程池饥饿的指标、堆栈与修复验证", "core": true, "prerequisites": ["s11.runtime-counters", "s10.aspnet-concurrency"], "evidence": ["diagnosis", "code", "tradeoff"], "lab_id": "lab-diagnose-starvation", "tags": ["ThreadPool starvation", "queue length", "线程池饥饿", "队列长度"]},
+        {"id": "s11.lock-contention", "title": "锁竞争、等待时间与临界区优化", "core": true, "prerequisites": ["s9.etw-perfview", "s3.lock-monitor"], "evidence": ["diagnosis", "code", "tradeoff"], "lab_id": "lab-lock-contention", "tags": ["lock contention", "critical section", "锁竞争", "临界区"]},
+        {"id": "s11.cpu-hotspots", "title": "CPU 热点、线程时间与并行优化验证", "core": true, "prerequisites": ["s11.eventpipe-traces", "s6.plinq-partitioning"], "evidence": ["diagnosis", "tradeoff"], "lab_id": "gate-s11-performance-case", "tags": ["CPU hotspot", "thread time", "parallel speedup", "CPU 热点", "线程时间"]}
+      ]
+    },
+    {
+      "id": "s12",
+      "order": 12,
+      "title": "专家综合验收",
+      "gate": {"lab_id": "gate-s12-expert-defense", "required_evidence": ["code", "lab", "diagnosis", "tradeoff", "review"]},
+      "objectives": [
+        {"id": "s12.race-repair", "title": "陌生竞态程序的复现、修复与验证", "core": true, "prerequisites": ["s8.lockfree-proof", "s11.lock-contention"], "evidence": ["code", "lab", "diagnosis", "tradeoff"], "lab_id": "capstone-race-repair", "tags": ["race repair", "invariant", "竞态修复", "不变量"]},
+        {"id": "s12.bounded-pipeline", "title": "生产级有界并发流水线设计", "core": true, "prerequisites": ["s10.overload-control", "s10.observability-recovery"], "evidence": ["code", "lab", "diagnosis", "tradeoff"], "lab_id": "capstone-bounded-pipeline", "tags": ["bounded pipeline", "backpressure", "有界流水线", "背压"]},
+        {"id": "s12.starvation-diagnosis", "title": "线程池饥饿案例的证据链诊断", "core": true, "prerequisites": ["s11.pool-starvation", "s11.eventpipe-traces"], "evidence": ["lab", "diagnosis", "tradeoff"], "lab_id": "capstone-starvation", "tags": ["starvation diagnosis", "EventPipe", "饥饿诊断", "证据链"]},
+        {"id": "s12.expert-defense", "title": "测量报告、设计权衡与专家答辩", "core": true, "prerequisites": ["s12.race-repair", "s12.bounded-pipeline", "s12.starvation-diagnosis"], "evidence": ["diagnosis", "tradeoff", "review"], "lab_id": "gate-s12-expert-defense", "tags": ["design defense", "measurement report", "设计答辩", "测量报告"]}
+      ]
+    }
+  ]
+}

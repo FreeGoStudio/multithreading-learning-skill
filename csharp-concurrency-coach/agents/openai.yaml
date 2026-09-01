@@ -1,0 +1,6 @@
+interface:
+  display_name: "C# 并发与多线程教练"
+  short_description: "系统学习 C# 并发、CLR 原理与 Windows 诊断"
+  default_prompt: "使用 $csharp-concurrency-coach 从我的当前水平开始学习 C# 并发与多线程。"
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,29 @@
+using System.Diagnostics;
+
+const string LabId = "__LAB_ID__";
+const string ObjectiveId = "__OBJECTIVE_ID__";
+
+using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+var stopwatch = Stopwatch.StartNew();
+
+try
+{
+    Console.WriteLine($"Lab: {LabId}");
+    Console.WriteLine($"Objective: {ObjectiveId}");
+
+    // Replace this starter with the bounded, objective-specific experiment.
+    await Task.Yield();
+    LabAssertions.True(!timeout.IsCancellationRequested, "The starter should complete before its timeout.");
+
+    Console.WriteLine("LAB_RESULT: PASS");
+}
+catch (Exception exception)
+{
+    Console.Error.WriteLine($"LAB_RESULT: FAIL ({exception.GetType().Name}) {exception.Message}");
+    Environment.ExitCode = 1;
+}
+finally
+{
+    stopwatch.Stop();
+    Console.WriteLine($"ElapsedMs: {stopwatch.ElapsedMilliseconds}");
+}
