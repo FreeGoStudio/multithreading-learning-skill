@@ -61,4 +61,13 @@ Keep feedback compact:
 - one next action;
 - mastery change only when recorded.
 
+For a prompt with multiple numbered questions, mirror the learner-facing question numbers and their original order in the feedback. Under every number:
+
+- label the response as correct, partially correct, or needing correction;
+- briefly confirm a correct answer even when no expansion is needed;
+- when correction is needed, state the specific error, why it is wrong, and the corrected understanding;
+- place any useful extension under the question it extends.
+
+Do not replace item-by-item feedback with a combined section such as “core conclusion.” Add an overall mental model, summary, or next exercise only after every numbered answer has been addressed. A single-question prompt may retain the compact feedback format above.
+
 At session end, report completed objectives, evidence collected, due reviews, current stage gate status, and the next eligible objective.
